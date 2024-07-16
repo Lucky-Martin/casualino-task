@@ -1,0 +1,33 @@
+<div class="login-container">
+  <div class="flex items-center justify-evenly">
+    <i class="fa-solid fa-chevron-left cursor-pointer" (click)="onReturn()"></i>
+    <h2 class="text-2xl text-center">Register with credentials</h2>
+  </div>
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <div class="input-wrap">
+      <label for="username">Username</label>
+      <input id="username" formControlName="username" type="text" (input)="validateCanSubmit()" />
+    </div>
+
+    <div class="input-wrap">
+      <label for="email">Email</label>
+      <input id="email" formControlName="email" type="email" (input)="validateCanSubmit()" />
+      <p class="error-text mt-2" *ngIf="emailErrorMessage">{{emailErrorMessage}}</p>
+    </div>
+
+    <div class="input-wrap">
+      <label for="password">Password</label>
+      <input id="password" formControlName="password" type="password" (input)="validateCanSubmit()" />
+      <p class="error-text mt-2" *ngIf="passwordErrorMessage">{{passwordErrorMessage}}</p>
+    </div>
+
+    <div class="input-wrap">
+      <label for="confirmPassword">Confirm password</label>
+      <input id="confirmPassword" formControlName="confirmPassword" type="password" (input)="validateCanSubmit()" />
+    </div>
+
+    <p class="error-text mt-2" *ngIf="false">Credentials don't match. Please try again</p>
+
+    <button type="submit" [disabled]="!canSubmit" class="mt-6">Login</button>
+  </form>
+</div>
