@@ -21,24 +21,17 @@ export class AuthService {
   private authStatus = new BehaviorSubject<boolean>(false);
   private initialAuthCheck = false;
   private readonly apiUrl: string = 'http://localhost:8000/api';
+  private readonly AUTH_TOKEN_KEY: string = 'auth_token';
 
   constructor(private httpClient: HttpClient, private router: Router) { }
 
-  get isLoggedIn(): Observable<boolean> {
+  get getAuthState(): Observable<boolean> {
     return this.authStatus.asObservable();
   }
 
   private async storeToken(token: string) {
     if (!token) return;
-    localStorage.setItem('auth_token', token);
-  }
-
-  private async removeToken() {
-    localStorage.removeItem('auth_token');
-  }
-
-  private async getToken(): Promise<string | null> {
-    return localStorage.getItem('auth_token');
+    localStorage.setItem(this.AUTH_TOKEN_KEY, token);
   }
 
   async checkInitialLoginStatus() {
@@ -80,6 +73,13 @@ export class AuthService {
 
     localStorage.setItem('user-json', JSON.stringify(res.user));
     await this.router.navigateByUrl('home', {replaceUrl: true});
+  }
+
+  async logout() {
+
+    localStorage.removeItem(this.AUTH_TOKEN_KEY);
+    this.authStatus.next(false);
+    await this.router.navigateByUrl('/auth', { replaceUrl: true });
   }
 
   isValidEmail(email: string) {

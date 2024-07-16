@@ -50,6 +50,7 @@ export class SignupComponent implements OnInit {
   }
 
   validateCanSubmit() {
+    const username = this.loginForm.get('username')?.value;
     const email = this.loginForm.get('email');
     const pass = this.loginForm.get('password');
     const confirmPass = this.loginForm.get('confirmPassword');
@@ -73,7 +74,8 @@ export class SignupComponent implements OnInit {
       }
     }
 
-    if (!this.emailErrorMessage && !this.passwordErrorMessage && email?.value.length && pass?.value.length) {
+    if (!this.emailErrorMessage && !this.passwordErrorMessage
+      && email?.value.length && pass?.value.length && username.length) {
       this.canSubmit = true;
     }
   }

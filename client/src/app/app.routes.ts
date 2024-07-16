@@ -4,6 +4,7 @@ import {LoginComponent} from "./pages/auth/login/login.component";
 import {SignupComponent} from "./pages/auth/signup/signup.component";
 import {InitialScreenComponent} from "./pages/auth/initial-screen/initial-screen.component";
 import {ChatComponent} from "./pages/chat/chat.component";
+import {AuthGuard} from "./services/auth.guard";
 
 export const routes: Routes = [
   {path: '', pathMatch: 'full', redirectTo: 'auth'},
@@ -13,5 +14,5 @@ export const routes: Routes = [
       {path: 'signup', component: SignupComponent}
     ]},
   {path: 'home', redirectTo: 'chat'},
-  {path: 'chat', component: ChatComponent}
+  {path: 'chat', component: ChatComponent, canActivate: [AuthGuard]}
 ];

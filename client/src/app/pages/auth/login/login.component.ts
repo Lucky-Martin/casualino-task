@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {Router} from "@angular/router";
 import {NgIf} from "@angular/common";
+import {AuthService} from "../../../services/auth.service";
 
 @Component({
   selector: 'app-login',
@@ -13,16 +14,18 @@ import {NgIf} from "@angular/common";
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   loginForm: FormGroup;
+  credentialsError: boolean;
 
   constructor(private fb: FormBuilder,
+              private authService: AuthService,
               private router: Router) {}
 
   ngOnInit(): void {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required, Validators.minLength(8)]
+      password: ['', [Validators.required, Validators.minLength(8)]]
     });
   }
 
@@ -31,9 +34,17 @@ export class LoginComponent {
   }
 
   onSubmit(): void {
+    this.credentialsError = false;
+
     if (this.loginForm.valid) {
       const loginData = this.loginForm.value;
-      console.log('Login data: ', loginData);
+
+      this.authService.login(loginData).subscribe(async res => {
+        await this.authService.processSuccessAuth(res);
+      }, err => {
+        this.credentialsError = true;
+        console.log(err);
+      })
     }
   }
 }
