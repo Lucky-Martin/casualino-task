@@ -43,7 +43,11 @@ export class SignupComponent implements OnInit {
       this.authService.signup(loginData).subscribe(async res => {
         await this.authService.processSuccessAuth(res);
       }, err => {
-        this.credentialsError = true;
+        if (err.error.message.includes('unique')) {
+          this.emailErrorMessage = 'Email already in use!';
+        } else {
+          this.credentialsError = true;
+        }
         console.log(err);
       });
     }
