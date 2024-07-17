@@ -14,6 +14,14 @@ export class UserRepository {
         }
     }
 
+    public static async fetchUserById(id: string): Promise<IUser | null> {
+        try {
+            return await User.findOne({_id: id});
+        } catch (e: any) {
+            throw new Error(e.message);
+        }
+    }
+
     public static async fetchUserByEmail(email: string): Promise<IUser | null> {
         try {
             return await User.findOne({email});

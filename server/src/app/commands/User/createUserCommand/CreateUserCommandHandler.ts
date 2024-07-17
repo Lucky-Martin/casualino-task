@@ -10,6 +10,8 @@ export class CreateUserCommandHandler implements ICommandHandler<CreateUserComma
             //hash the password
             command.password = await bcrypt.hash(command.password, 12);
 
+            console.log('create user', command.username, command.email, command.password)
+
             const user = await UserRepository.createUser(command.username, command.email, command.password);
 
             return { user }

@@ -6,7 +6,12 @@ import {UserRepository} from "../../../../db/repositories/UserRepository";
 export class FetchUserQueryHandler implements IQueryHandler<FetchUserQuery, FetchUserQueryReply> {
     public async handle(query: FetchUserQuery): Promise<FetchUserQueryReply> {
         try {
-            const user = await UserRepository.fetchUserByEmail(query.email);
+            let user;
+            if (query.id) {
+                user = await UserRepository.fetchUserById(query.id);
+            } else if (query.email) {
+                user = await UserRepository.fetchUserByEmail(query.email);
+            }
 
             if (!user) {
                 throw new Error("User not found");

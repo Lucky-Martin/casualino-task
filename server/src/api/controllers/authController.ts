@@ -14,7 +14,7 @@ const signupUser = async (req: Request, res: Response) => {
         const commandHandler = new CreateUserCommandHandler();
         const commandResult = await commandHandler.handle(command);
 
-        const token = jwt.sign({id: (commandResult as any).user._id}, process.env.JWT_SECRET!,
+        const token = jwt.sign({user: commandResult.user}, process.env.JWT_SECRET!,
             {expiresIn: '1d'});
         res.status(201).json({message: 'User created', token, user: commandResult.user});
     } catch (error) {
@@ -26,7 +26,7 @@ const loginUser = async (req: Request, res: Response) => {
     try {
         const {email, password} = req.body;
 
-        const query = new FetchUserQuery(email);
+        const query = new FetchUserQuery(null, email);
         const queryHandler = new FetchUserQueryHandler();
         const queryResult = await queryHandler.handle(query);
 
@@ -40,11 +40,33 @@ const loginUser = async (req: Request, res: Response) => {
             return res.status(400).json({message: 'Invalid credentials'});
         }
 
-        const token = jwt.sign({id: (user as any)._id}, process.env.JWT_SECRET!, {expiresIn: '1d'});
+        console.log('logged user', user);
+
+        const token = jwt.sign({user}, process.env.JWT_SECRET!, {expiresIn: '1d'});
         res.status(200).json({message: 'Login successful', token, user});
     } catch (error) {
         res.status(500).json({message: (error as Error).message});
     }
 };
 
-export {signupUser, loginUser};
+const getUser = async (req: Request, res: Response) => {
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        const decoded: any = jwt.verify(token!, process.env.JWT_SECRET!);
+
+        let userId;
+        if (decoded.user) {
+            userId = decoded.user._id;
+        } else {
+            userId = decoded.id;
+        }
+
+        const query = new FetchUserQuery(userId, null);
+        const queryHandler = new FetchUserQueryHandler();
+        res.status(200).json(await queryHandler.handle(query));
+    } catch (error) {
+        res.status(500).json({message: (error as Error).message});
+    }
+}
+
+export {signupUser, loginUser, getUser};

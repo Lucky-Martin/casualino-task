@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import {BehaviorSubject, Observable} from "rxjs";
 import {HttpClient} from "@angular/common/http";
 import {Router} from "@angular/router";
+import {ChatService} from "./chat.service";
 
 export interface ISignupCredentials {
   username: string;
@@ -22,8 +23,11 @@ export class AuthService {
   private initialAuthCheck = false;
   private readonly apiUrl: string = 'http://localhost:8000/api';
   private readonly AUTH_TOKEN_KEY: string = 'auth_token';
+  username: string;
 
-  constructor(private httpClient: HttpClient, private router: Router) { }
+  constructor(private httpClient: HttpClient,
+              private chatService: ChatService,
+              private router: Router) { }
 
   get getAuthState(): Observable<boolean> {
     return this.authStatus.asObservable();
@@ -61,7 +65,11 @@ export class AuthService {
   }
 
   login(credentials: ILoginCredentials) {
-    return this.httpClient.post<{ token: string, user: any }>(`${this.apiUrl}/auth/login`, credentials);
+    return this.httpClient.post<{ token: string, user: any }>(`${this.apiUrl}/auth/login`, credentials, {withCredentials: true});
+  }
+
+  fetchUser() {
+    return this.httpClient.get(`${this.apiUrl}/auth/profile`, {withCredentials: true});
   }
 
   async processSuccessAuth(res: any) {
@@ -72,12 +80,15 @@ export class AuthService {
     }
 
     localStorage.setItem('user-json', JSON.stringify(res.user));
+    this.chatService.reconnectSocket();
+
     await this.router.navigateByUrl('home', {replaceUrl: true});
   }
 
   async logout() {
+    localStorage.clear();
+    this.chatService.disconnectSocket();
 
-    localStorage.removeItem(this.AUTH_TOKEN_KEY);
     this.authStatus.next(false);
     await this.router.navigateByUrl('/auth', { replaceUrl: true });
   }
